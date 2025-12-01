@@ -8,6 +8,7 @@ import com.rowanmcalpin.nextftc.core.control.controllers.PIDFController;
 import com.rowanmcalpin.nextftc.ftc.hardware.controllables.MotorEx;
 
 
+import com.rowanmcalpin.nextftc.ftc.hardware.controllables.MotorGroup;
 import com.rowanmcalpin.nextftc.ftc.hardware.controllables.RunToVelocity;
 
 @Config
@@ -20,7 +21,7 @@ public class Outtake extends Subsystem {
     public  static  double kD = 0.00;
 
 
-    public  static double motorVelocity = 700;
+    public  static double motorVelocity = 60;
 
 
     private final PIDFController outtakeVelocityController = new PIDFController(
@@ -34,43 +35,59 @@ public class Outtake extends Subsystem {
 
     public static Outtake INSTANCE = new Outtake();
 
-    private MotorEx motorOuttake;
+    private MotorEx motorOuttakeRight;
+    private MotorEx motorOuttakeLeft;
+
+    private  MotorGroup motorOuttakeGroup;
+
+
 
 
     public void initialize() {
-        motorOuttake = new MotorEx("Outtake");
+        motorOuttakeRight = new MotorEx("outtakeRight");
+        motorOuttakeLeft = new MotorEx("outtakeLeft");
+
+        motorOuttakeLeft.reverse();
+        motorOuttakeRight.reverse();
+
+        motorOuttakeGroup = new MotorGroup(motorOuttakeLeft, motorOuttakeRight);
     }
 
-    public InstantCommand setPowerToMotorOuttake(double i) {
+    public InstantCommand setPowerToMotorS(double i) {
         return new InstantCommand(()-> {
-            motorOuttake.setPower(i*motorPower);
+            //motorOuttakeRight.setPower(i*motorPower);
+            motorOuttakeGroup.setPower(i*motorPower);
+
+
         });
     }
 
     public Command startMotor() {
-        double targetTemp  = -motorVelocity; // ignore direction
+        double targetTemp  = motorVelocity; // ignore direction
+
 
         return new RunToVelocity(
-                motorOuttake,
-                targetTemp,      // target velocity (ticks/sec)
+                motorOuttakeGroup,
+                targetTemp,
                 outtakeVelocityController,
-                this                            // the Outtake subsystem
+                this
         );
 
     }
 
     public Command stopMotor() {
-
-        return new RunToVelocity(
-                motorOuttake,
-                0,      // target velocity (ticks/sec)
-                outtakeVelocityController,
-                this                            // the Outtake subsystem
-        );
-
+        return new InstantCommand(() -> {
+            motorOuttakeGroup.setPower(0);
+        });
     }
 
-    public  double getMotorCurrentVelocity() {
-        return  -1 * motorOuttake.getVelocity();
+    public  double getMotorCurrentLeftVelocity() {
+        return motorOuttakeLeft.getVelocity();
     }
+
+    public  double getMotorCurrentRightVelocity() {
+        return motorOuttakeRight.getVelocity();
+    }
+
+
 }

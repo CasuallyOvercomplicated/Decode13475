@@ -10,6 +10,9 @@ import com.rowanmcalpin.nextftc.ftc.gamepad.GamepadEx;
 import com.rowanmcalpin.nextftc.ftc.NextFTCOpMode;
 
 import org.firstinspires.ftc.teamcode.hardware.DriveTrain;
+import org.firstinspires.ftc.teamcode.hardware.Intake;
+import org.firstinspires.ftc.teamcode.hardware.Outtake;
+import org.firstinspires.ftc.teamcode.hardware.Transfer;
 
 @Config
 @TeleOp(name = "YeshivaLeague2026TestTeleop", group = "Teleop")
@@ -18,15 +21,28 @@ public class Teleop extends NextFTCOpMode {
     public Command driverControlled;
 
     public Teleop() {
-       // super(DriveTrain.INSTANCE);
+        super(DriveTrain.INSTANCE, Intake.INSTANCE, Outtake.INSTANCE, Transfer.INSTANCE);
     }
 
     private GamepadEx gp1;
 
     @Override
     public void onStartButtonPressed() {
-        gp1 = gamepadManager.getGamepad1();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        driverControlled = DriveTrain.INSTANCE.Drive(gamepadManager.getGamepad1(), false);
+        driverControlled.invoke();
+        GamepadEx gp1 = gamepadManager.getGamepad1();
+        GamepadEx gp2 = gamepadManager.getGamepad2();
+
+        gp1.getRightBumper().setPressedCommand(() -> Intake.INSTANCE.eat());
+        gp1.getLeftBumper().setPressedCommand(() -> Intake.INSTANCE.spit());
+
+        gp1.getA().setPressedCommand(() -> Outtake.INSTANCE.startMotor());
+
+        gp1.getB().setPressedCommand(() -> Outtake.INSTANCE.stopMotor());
+
+        gp1.getX().setPressedCommand(() -> Transfer.INSTANCE.transferBall());
+
 
     }
 
