@@ -38,7 +38,7 @@ public class Outtake extends Subsystem {
     private MotorEx motorOuttakeRight;
     private MotorEx motorOuttakeLeft;
 
-    private  MotorGroup motorOuttakeGroup;
+    private  MotorGroup outtakeGroup;
 
 
 
@@ -50,13 +50,13 @@ public class Outtake extends Subsystem {
         motorOuttakeLeft.reverse();
         motorOuttakeRight.reverse();
 
-        motorOuttakeGroup = new MotorGroup(motorOuttakeLeft, motorOuttakeRight);
+        outtakeGroup = new MotorGroup(motorOuttakeLeft, motorOuttakeRight);
     }
 
     public InstantCommand setPowerToMotorS(double i) {
         return new InstantCommand(()-> {
             //motorOuttakeRight.setPower(i*motorPower);
-            motorOuttakeGroup.setPower(i*motorPower);
+            outtakeGroup.setPower(i*motorPower);
 
 
         });
@@ -67,7 +67,7 @@ public class Outtake extends Subsystem {
 
 
         return new RunToVelocity(
-                motorOuttakeGroup,
+                outtakeGroup,
                 targetTemp,
                 outtakeVelocityController,
                 this
@@ -77,7 +77,7 @@ public class Outtake extends Subsystem {
 
     public Command stopMotor() {
         return new InstantCommand(() -> {
-            motorOuttakeGroup.setPower(0);
+            outtakeGroup.setPower(0);
         });
     }
 
